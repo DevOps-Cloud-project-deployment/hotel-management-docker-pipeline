@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LionTech Joy — Hotel Management</title>
+  <meta name="description" content="LionTech Joy hotel booking and fake payment demo site." />
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#111b33;
+      --card2:#0f1930;
+      --text:#eaf0ff;
+      --muted:#a9b6da;
+      --accent:#4aa3ff;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --line:rgba(255,255,255,.10);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(74,163,255,.20), transparent 55%),
+        radial-gradient(900px 600px at 90% 25%, rgba(34,197,94,.15), transparent 55%),
+        linear-gradient(180deg, #070b14, var(--bg) 45%, #070b14);
+      color:var(--text);
+      min-height:100vh;
+    }
+    a{color:inherit}
+    .wrap{max-width:1200px;margin:0 auto;padding:24px}
+    header{
+      display:flex;gap:16px;align-items:center;justify-content:space-between;
+      padding:14px 16px;border:1px solid var(--line);border-radius: var(--radius);
+      background: rgba(17,27,51,.60);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      position:sticky; top:16px; z-index:50;
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px;
+    }
+    .logo{
+      width:40px;height:40px;border-radius:12px;
+      background: linear-gradient(135deg, rgba(74,163,255,.95), rgba(34,197,94,.85));
+      display:grid;place-items:center;
+      box-shadow: 0 10px 25px rgba(74,163,255,.15);
+      border:1px solid rgba(255,255,255,.18);
+      font-weight:800;
+    }
+    .brand h1{margin:0;font-size:16px;letter-spacing:.2px}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
+    nav{
+      display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end;
+    }
+    .pill{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding:10px 12px;border-radius:999px;
+      font-size:13px;cursor:pointer; user-select:none;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+    }
+    .pill:hover{background: rgba(255,255,255,.09)}
+    .pill:active{transform: scale(.98)}
+    .pill.primary{
+      background: rgba(74,163,255,.20);
+      border-color: rgba(74,163,255,.45);
+    }
+    .pill.danger{
+      background: rgba(239,68,68,.16);
+      border-color: rgba(239,68,68,.35);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap:16px;
+      margin-top:16px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+      header{position:static}
+    }
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(17,27,51,.55);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .head{
+      padding:16px 16px 10px;
+      border-bottom:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+    }
+    .card .head h2{margin:0;font-size:15px}
+    .card .head p{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
+    .card .body{padding:16px}
+    .rooms{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:14px;
+    }
+    @media (max-width: 680px){ .rooms{grid-template-columns:1fr} }
+    .room{
+      border:1px solid var(--line);
+      border-radius: 16px;
+      overflow:hidden;
+      background: rgba(15,25,48,.70);
+      display:flex;flex-direction:column;
+      min-height: 330px;
+    }
+    .room .img{
+      height:150px;
+      background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      border-bottom:1px solid var(--line);
+      position:relative;
+      display:flex;align-items:flex-end;
+      padding:12px;
+    }
+    /* Fake images: local SVG gradients as data-URIs */
+    .room[data-img="1"] .img{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'%3E%3Cdefs%3E%3CradialGradient id='g' cx='30%25' cy='30%25' r='70%25'%3E%3Cstop offset='0%25' stop-color='%234aa3ff' stop-opacity='0.9'/%3E%3Cstop offset='55%25' stop-color='%23111b33' stop-opacity='0.95'/%3E%3Cstop offset='100%25' stop-color='%23070b14'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1200' height='700' fill='url(%23g)'/%3E%3Cpath d='M0 520 C 220 470, 320 650, 560 600 S 980 560, 1200 620 L 1200 700 L 0 700 Z' fill='%2322c55e' fill-opacity='0.18'/%3E%3Ccircle cx='980' cy='140' r='120' fill='%23ffffff' fill-opacity='0.08'/%3E%3Ctext x='60' y='120' fill='%23ffffff' fill-opacity='0.55' font-size='56' font-family='Arial'%3ELionTech Joy%3C/text%3E%3Ctext x='60' y='180' fill='%23ffffff' fill-opacity='0.35' font-size='26' font-family='Arial'%3EDeluxe Room%3C/text%3E%3C/svg%3E"); background-size:cover; background-position:center;}
+    .room[data-img="2"] .img{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0%25' stop-color='%2322c55e' stop-opacity='0.75'/%3E%3Cstop offset='55%25' stop-color='%23111b33' stop-opacity='0.95'/%3E%3Cstop offset='100%25' stop-color='%23070b14'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='700' fill='url(%23g)'/%3E%3Crect x='70' y='90' width='540' height='360' rx='28' fill='%23ffffff' fill-opacity='0.06'/%3E%3Crect x='650' y='180' width='470' height='290' rx='28' fill='%23ffffff' fill-opacity='0.05'/%3E%3Ctext x='60' y='120' fill='%23ffffff' fill-opacity='0.55' font-size='56' font-family='Arial'%3ELionTech Joy%3C/text%3E%3Ctext x='60' y='180' fill='%23ffffff' fill-opacity='0.35' font-size='26' font-family='Arial'%3EExecutive Suite%3C/text%3E%3C/svg%3E"); background-size:cover; background-position:center;}
+    .room[data-img="3"] .img{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'%3E%3Cdefs%3E%3CradialGradient id='g' cx='70%25' cy='30%25' r='75%25'%3E%3Cstop offset='0%25' stop-color='%23f59e0b' stop-opacity='0.8'/%3E%3Cstop offset='60%25' stop-color='%23111b33' stop-opacity='0.96'/%3E%3Cstop offset='100%25' stop-color='%23070b14'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1200' height='700' fill='url(%23g)'/%3E%3Cpath d='M120 520 L 540 340 L 820 520 Z' fill='%23ffffff' fill-opacity='0.06'/%3E%3Cpath d='M820 520 L 1080 420 L 1200 520 L 1200 700 L 820 700 Z' fill='%234aa3ff' fill-opacity='0.14'/%3E%3Ctext x='60' y='120' fill='%23ffffff' fill-opacity='0.55' font-size='56' font-family='Arial'%3ELionTech Joy%3C/text%3E%3Ctext x='60' y='180' fill='%23ffffff' fill-opacity='0.35' font-size='26' font-family='Arial'%3EStandard Room%3C/text%3E%3C/svg%3E"); background-size:cover; background-position:center;}
+    .room[data-img="4"] .img{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23ef4444' stop-opacity='0.55'/%3E%3Cstop offset='55%25' stop-color='%23111b33' stop-opacity='0.95'/%3E%3Cstop offset='100%25' stop-color='%23070b14'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='700' fill='url(%23g)'/%3E%3Ccircle cx='320' cy='340' r='180' fill='%23ffffff' fill-opacity='0.06'/%3E%3Ccircle cx='820' cy='340' r='220' fill='%23ffffff' fill-opacity='0.05'/%3E%3Ctext x='60' y='120' fill='%23ffffff' fill-opacity='0.55' font-size='56' font-family='Arial'%3ELionTech Joy%3C/text%3E%3Ctext x='60' y='180' fill='%23ffffff' fill-opacity='0.35' font-size='26' font-family='Arial'%3EFamily Room%3C/text%3E%3C/svg%3E"); background-size:cover; background-position:center;}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.16);
+      font-size:12px;
+    }
+    .room .content{padding:12px 12px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
+    .room h3{margin:0;font-size:14.5px}
+    .meta{display:flex;flex-wrap:wrap;gap:8px;color:var(--muted);font-size:12px}
+    .meta span{border:1px solid var(--line);padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.04)}
+    .priceRow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .price{font-weight:800}
+    .btnRow{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{
+      flex:1;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding:10px 10px;border-radius: 12px;
+      font-size:13px; cursor:pointer;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+    }
+    .btn:hover{background: rgba(255,255,255,.09)}
+    .btn:active{transform: scale(.99)}
+    .btn.primary{
+      background: rgba(74,163,255,.18);
+      border-color: rgba(74,163,255,.45);
+    }
+    .btn.good{
+      background: rgba(34,197,94,.16);
+      border-color: rgba(34,197,94,.40);
+    }
+    .btn.ghost{
+      background: transparent;
+    }
+    .rightCol .section{margin-bottom:16px}
+    .kpi{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:10px;
+    }
+    .kpi .k{
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding:12px;
+      background: rgba(15,25,48,.65);
+    }
+    .k .label{color:var(--muted);font-size:12px}
+    .k .val{font-size:18px;font-weight:800;margin-top:4px}
+    .form{
+      display:grid; gap:10px;
+    }
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width: 680px){ .row2{grid-template-columns:1fr} }
+    label{font-size:12px;color:var(--muted)}
+    input, select{
+      width:100%;
+      padding:11px 12px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      outline:none;
+    }
+    input::placeholder{color: rgba(233,240,255,.45)}
+    .note{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      border:1px dashed rgba(255,255,255,.18);
+      padding:10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+    }
+    .toast{
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      min-width: 260px;
+      max-width: 360px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 12px;
+      background: rgba(17,27,51,.85);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      display:none;
+      z-index: 999;
+    }
+    .toast.show{display:block;animation: pop .18s ease-out}
+    @keyframes pop {from{transform: translateY(8px);opacity:0}to{transform: translateY(0);opacity:1}}
+    .toast .t{font-weight:800;font-size:13px}
+    .toast .m{color:var(--muted);font-size:12.5px;margin-top:4px;line-height:1.35}
+    table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(15,25,48,.55);
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-size:12.5px;
+      text-align:left;
+      vertical-align: top;
+    }
+    th{color: rgba(233,240,255,.78); font-weight:700; background: rgba(255,255,255,.03)}
+    td{color: rgba(233,240,255,.92)}
+    tr:last-child td{border-bottom:none}
+    .small{font-size:12px;color:var(--muted)}
+    .status{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .dot{width:8px;height:8px;border-radius:50%}
+    .paid .dot{background: var(--good)}
+    .unpaid .dot{background: var(--warn)}
+    .cancelled .dot{background: var(--bad)}
+    footer{
+      margin:22px 0 8px;
+      color: rgba(233,240,255,.55);
+      font-size:12px;
+      text-align:center;
+    }
+    .hr{height:1px;background: var(--line); margin:12px 0}
+    .sr-only{position:absolute;left:-9999px}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand" role="banner">
+        <div class="logo" aria-hidden="true">LJ</div>
+        <div>
+          <h1>LionTech Joy</h1>
+          <p>Hotel Management Demo — Book rooms, view bookings, fake payments</p>
+        </div>
+      </div>
+
+      <nav aria-label="Top actions">
+        <button class="pill primary" id="navRooms">Rooms</button>
+        <button class="pill" id="navBookings">Bookings</button>
+        <button class="pill" id="navPayments">Payments</button>
+        <button class="pill danger" id="resetAll">Reset Demo Data</button>
+      </nav>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: Rooms -->
+      <section class="card" id="viewRooms">
+        <div class="head">
+          <h2>Available Rooms</h2>
+          <p>Choose a room to book. This is a front-end demo: bookings and payments are stored in your browser (localStorage).</p>
+        </div>
+        <div class="body">
+          <div class="rooms" id="roomGrid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Dashboard + Booking + Payment -->
+      <aside class="rightCol">
+        <div class="card section">
+          <div class="head">
+            <h2>Dashboard</h2>
+            <p>Quick snapshot of bookings and fake revenue.</p>
+          </div>
+          <div class="body">
+            <div class="kpi">
+              <div class="k">
+                <div class="label">Bookings</div>
+                <div class="val" id="kpiBookings">0</div>
+              </div>
+              <div class="k">
+                <div class="label">Paid</div>
+                <div class="val" id="kpiPaid">0</div>
+              </div>
+              <div class="k">
+                <div class="label">Revenue (fake)</div>
+                <div class="val" id="kpiRevenue">$0</div>
+              </div>
+            </div>
+            <div class="hr"></div>
+            <div class="note">
+              Tip: Click <b>Book</b> on any room to prefill the form. Payments are simulated; no real card data is processed.
+            </div>
+          </div>
+        </div>
+
+        <div class="card section" id="bookingCard">
+          <div class="head">
+            <h2>Book a Room</h2>
+            <p>Enter guest details and dates. Total cost is calculated automatically.</p>
+          </div>
+          <div class="body">
+            <form class="form" id="bookingForm">
+              <div>
+                <label for="roomSelect">Room</label>
+                <select id="roomSelect" required></select>
+              </div>
+
+              <div class="row2">
+                <div>
+                  <label for="fullName">Full name</label>
+                  <input id="fullName" placeholder="e.g., Elvis Tita Lavert" required />
+                </div>
+                <div>
+                  <label for="email">Email</label>
+                  <input id="email" type="email" placeholder="e.g., guest@example.com" required />
+                </div>
+              </div>
+
+              <div class="row2">
+                <div>
+                  <label for="checkIn">Check-in</label>
+                  <input id="checkIn" type="date" required />
+                </div>
+                <div>
+                  <label for="checkOut">Check-out</label>
+                  <input id="checkOut" type="date" required />
+                </div>
+              </div>
+
+              <div class="row2">
+                <div>
+                  <label for="guests">Guests</label>
+                  <select id="guests" required>
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Estimated total</label>
+                  <input id="total" readonly />
+                </div>
+              </div>
+
+              <div class="btnRow">
+                <button type="submit" class="btn primary">Create Booking</button>
+                <button type="button" class="btn ghost" id="clearForm">Clear</button>
+              </div>
+
+              <div class="note">
+                Booking status starts as <b>Unpaid</b>. You can run a fake payment from the Payments panel.
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card section" id="paymentCard">
+          <div class="head">
+            <h2>Fake Payments</h2>
+            <p>Select a booking and simulate a payment transaction.</p>
+          </div>
+          <div class="body">
+            <form class="form" id="paymentForm">
+              <div>
+                <label for="payBookingSelect">Booking</label>
+                <select id="payBookingSelect" required></select>
+              </div>
+
+              <div class="row2">
+                <div>
+                  <label for="payMethod">Method</label>
+                  <select id="payMethod" required>
+                    <option value="Card" selected>Card</option>
+                    <option value="Mobile Money">Mobile Money</option>
+                    <option value="Cash">Cash</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="payAmount">Amount</label>
+                  <input id="payAmount" type="number" min="0" step="1" required />
+                </div>
+              </div>
+
+              <div class="row2">
+                <div>
+                  <label for="fakeCard">Fake card number</label>
+                  <input id="fakeCard" inputmode="numeric" placeholder="4111 1111 1111 1111" />
+                </div>
+                <div>
+                  <label for="fakeCvv">Fake CVV</label>
+                  <input id="fakeCvv" inputmode="numeric" placeholder="123" />
+                </div>
+              </div>
+
+              <div class="btnRow">
+                <button type="submit" class="btn good">Process Fake Payment</button>
+                <button type="button" class="btn ghost" id="refundBtn">Mark as Refunded</button>
+              </div>
+
+              <div class="note">
+                This is a simulation. Do not enter real payment details. Use any fake values.
+              </div>
+            </form>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- BOOKINGS VIEW -->
+    <section class="card" id="viewBookings" style="margin-top:16px; display:none;">
+      <div class="head">
+        <h2>Bookings</h2>
+        <p>View, cancel, and manage bookings created in this demo.</p>
+      </div>
+      <div class="body">
+        <div class="small">Bookings are saved in your browser. Use “Reset Demo Data” to clear.</div>
+        <div style="margin-top:10px; overflow:auto;">
+          <table aria-label="Bookings table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Guest</th>
+                <th>Room</th>
+                <th>Dates</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAYMENTS VIEW -->
+    <section class="card" id="viewPayments" style="margin-top:16px; display:none;">
+      <div class="head">
+        <h2>Payment Ledger</h2>
+        <p>All fake transactions for this demo.</p>
+      </div>
+      <div class="body">
+        <div class="small">This ledger is for demonstration only.</div>
+        <div style="margin-top:10px; overflow:auto;">
+          <table aria-label="Payments table">
+            <thead>
+              <tr>
+                <th>Txn ID</th>
+                <th>Booking</th>
+                <th>Method</th>
+                <th>Amount</th>
+                <th>When</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © <span id="year"></span> LionTech Joy. Demo application (front-end only).
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <div class="t" id="toastTitle">Notice</div>
+    <div class="m" id="toastMsg">…</div>
+  </div>
+
+  <script>
+    // ======== Demo Data ========
+    const ROOMS = [
+      { id:"DLX-101", name:"Deluxe Room", beds:"1 King", maxGuests:2, pricePerNight:165, img:"1", features:["Wi-Fi","Breakfast","City view"] },
+      { id:"EXE-201", name:"Executive Suite", beds:"1 King + Lounge", maxGuests:3, pricePerNight:280, img:"2", features:["Workspace","Mini bar","Premium view"] },
+      { id:"STD-301", name:"Standard Room", beds:"1 Queen", maxGuests:2, pricePerNight:120, img:"3", features:["Wi-Fi","Smart TV","Shower"] },
+      { id:"FAM-401", name:"Family Room", beds:"2 Double", maxGuests:5, pricePerNight:210, img:"4", features:["2 beds","Kid friendly","Extra space"] },
+    ];
+
+    const STORAGE_KEY = "liontechjoy_hotel_demo_v1";
+    const todayISO = () => new Date().toISOString().slice(0,10);
+
+    const state = {
+      bookings: [],
+      payments: []
+    };
+
+    // ======== Utilities ========
+    const $ = (id) => document.getElementById(id);
+    const money = (n) => `$${Number(n || 0).toLocaleString(undefined, {maximumFractionDigits:0})}`;
+    const uid = (prefix) => `${prefix}-${Math.random().toString(16).slice(2,6).toUpperCase()}${Date.now().toString().slice(-4)}`;
+    const daysBetween = (a, b) => {
+      const ms = new Date(b).setHours(0,0,0,0) - new Date(a).setHours(0,0,0,0);
+      return Math.max(0, Math.round(ms / 86400000));
+    };
+    const toast = (title, msg) => {
+      $("toastTitle").textContent = title;
+      $("toastMsg").textContent = msg;
+      const el = $("toast");
+      el.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => el.classList.remove("show"), 3200);
+    };
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw){
+          const parsed = JSON.parse(raw);
+          state.bookings = Array.isArray(parsed.bookings) ? parsed.bookings : [];
+          state.payments = Array.isArray(parsed.payments) ? parsed.payments : [];
+        }
+      }catch(e){
+        // ignore
+      }
+    }
+
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        bookings: state.bookings,
+        payments: state.payments
+      }));
+    }
+
+    function roomById(id){ return ROOMS.find(r => r.id === id); }
+
+    function bookingStatusBadge(status){
+      const cls = status === "PAID" ? "paid" : status === "CANCELLED" ? "cancelled" : "unpaid";
+      const label = status === "PAID" ? "Paid" : status === "CANCELLED" ? "Cancelled" : "Unpaid";
+      return `<span class="status ${cls}"><span class="dot"></span>${label}</span>`;
+    }
+
+    // ======== Rendering ========
+    function renderRooms(){
+      const grid = $("roomGrid");
+      grid.innerHTML = ROOMS.map(r => `
+        <article class="room" data-img="${r.img}">
+          <div class="img">
+            <span class="badge">${r.id} · ${r.beds}</span>
+          </div>
+          <div class="content">
+            <div>
+              <h3>${r.name}</h3>
+              <div class="meta">
+                <span>Max ${r.maxGuests} guests</span>
+                ${r.features.map(f => `<span>${f}</span>`).join("")}
+              </div>
+            </div>
+            <div class="priceRow">
+              <div class="price">${money(r.pricePerNight)}<span class="small"> / night</span></div>
+              <div class="small">Taxes not included (demo)</div>
+            </div>
+            <div class="btnRow">
+              <button class="btn primary" onclick="prefillBooking('${r.id}')">Book</button>
+              <button class="btn" onclick="quickViewRoom('${r.id}')">View</button>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderRoomSelect(){
+      const sel = $("roomSelect");
+      sel.innerHTML = ROOMS.map(r => `<option value="${r.id}">${r.name} (${r.id}) — ${money(r.pricePerNight)}/night</option>`).join("");
+    }
+
+    function renderBookingsTable(){
+      const tb = $("bookingsTbody");
+      if(state.bookings.length === 0){
+        tb.innerHTML = `<tr><td colspan="7" class="small">No bookings yet. Create one from the Booking form.</td></tr>`;
+        return;
+      }
+      tb.innerHTML = state.bookings
+        .slice()
+        .sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0))
+        .map(b => {
+          const r = roomById(b.roomId);
+          const dates = `${b.checkIn} → ${b.checkOut} (${b.nights} night${b.nights===1?"":"s"})`;
+          return `
+            <tr>
+              <td><b>${b.id}</b><div class="small">${new Date(b.createdAt).toLocaleString()}</div></td>
+              <td>${escapeHtml(b.fullName)}<div class="small">${escapeHtml(b.email)}</div></td>
+              <td>${r ? r.name : b.roomId}<div class="small">${b.roomId}</div></td>
+              <td>${dates}<div class="small">Guests: ${b.guests}</div></td>
+              <td><b>${money(b.total)}</b></td>
+              <td>${bookingStatusBadge(b.status)}</td>
+              <td>
+                <div class="btnRow" style="gap:8px">
+                  <button class="btn" onclick="selectBookingForPayment('${b.id}')">Pay</button>
+                  <button class="btn danger" onclick="cancelBooking('${b.id}')">Cancel</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join("");
+    }
+
+    function renderPaymentsTable(){
+      const tb = $("paymentsTbody");
+      if(state.payments.length === 0){
+        tb.innerHTML = `<tr><td colspan="6" class="small">No payments yet. Process a fake payment to populate this ledger.</td></tr>`;
+        return;
+      }
+      tb.innerHTML = state.payments
+        .slice()
+        .sort((a,b) => (b.at || 0) - (a.at || 0))
+        .map(p => `
+          <tr>
+            <td><b>${p.txnId}</b></td>
+            <td>${p.bookingId}</td>
+            <td>${p.method}</td>
+            <td><b>${money(p.amount)}</b></td>
+            <td>${new Date(p.at).toLocaleString()}</td>
+            <td class="small">${escapeHtml(p.note || "")}</td>
+          </tr>
+        `).join("");
+    }
+
+    function renderPaymentBookingSelect(){
+      const sel = $("payBookingSelect");
+      const eligible = state.bookings.filter(b => b.status !== "CANCELLED");
+      if(eligible.length === 0){
+        sel.innerHTML = `<option value="">No active bookings</option>`;
+        sel.disabled = true;
+        $("payAmount").value = "";
+        return;
+      }
+      sel.disabled = false;
+      sel.innerHTML = eligible
+        .slice()
+        .sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0))
+        .map(b => {
+          const r = roomById(b.roomId);
+          const tag = b.status === "PAID" ? "PAID" : "UNPAID";
+          return `<option value="${b.id}">${b.id} — ${r ? r.name : b.roomId} — ${money(b.total)} (${tag})</option>`;
+        }).join("");
+    }
+
+    function renderKPIs(){
+      const bookings = state.bookings.filter(b => b.status !== "CANCELLED").length;
+      const paid = state.bookings.filter(b => b.status === "PAID").length;
+      const revenue = state.payments.reduce((sum,p) => sum + (Number(p.amount)||0), 0);
+      $("kpiBookings").textContent = bookings;
+      $("kpiPaid").textContent = paid;
+      $("kpiRevenue").textContent = money(revenue);
+    }
+
+    function refreshAll(){
+      saveState();
+      renderBookingsTable();
+      renderPaymentsTable();
+      renderPaymentBookingSelect();
+      renderKPIs();
+      syncPaymentAmountHint();
+      recalcTotal();
+    }
+
+    // ======== Views / Navigation ========
+    function showView(view){
+      $("viewRooms").style.display = view === "rooms" ? "" : "none";
+      $("viewBookings").style.display = view === "bookings" ? "" : "none";
+      $("viewPayments").style.display = view === "payments" ? "" : "none";
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    // ======== Actions ========
+    window.prefillBooking = (roomId) => {
+      $("roomSelect").value = roomId;
+
+      // sensible defaults
+      if(!$("checkIn").value) $("checkIn").value = todayISO();
+      if(!$("checkOut").value){
+        const d = new Date($("checkIn").value || todayISO());
+        d.setDate(d.getDate()+1);
+        $("checkOut").value = d.toISOString().slice(0,10);
+      }
+      recalcTotal();
+      toast("Room selected", `Booking form prefilled for ${roomId}.`);
+      $("bookingCard").scrollIntoView({behavior:"smooth", block:"start"});
+    };
+
+    window.quickViewRoom = (roomId) => {
+      const r = roomById(roomId);
+      if(!r) return;
+      toast(r.name, `Beds: ${r.beds}. Max guests: ${r.maxGuests}. Price: ${money(r.pricePerNight)}/night.`);
+    };
+
+    function cancelBooking(id){
+      const b = state.bookings.find(x => x.id === id);
+      if(!b) return;
+      b.status = "CANCELLED";
+      state.payments.push({
+        txnId: uid("CXL"),
+        bookingId: b.id,
+        method: "System",
+        amount: 0,
+        at: Date.now(),
+        note: "Booking cancelled (demo action)."
+      });
+      toast("Booking cancelled", `Booking ${id} has been cancelled.`);
+      refreshAll();
+    }
+    window.cancelBooking = cancelBooking;
+
+    function selectBookingForPayment(bookingId){
+      showView("payments");
+      $("payBookingSelect").value = bookingId;
+      syncPaymentAmountHint();
+      $("paymentCard").scrollIntoView({behavior:"smooth", block:"start"});
+      toast("Payment selected", `Ready to process payment for ${bookingId}.`);
+    }
+    window.selectBookingForPayment = selectBookingForPayment;
+
+    function syncPaymentAmountHint(){
+      const bookingId = $("payBookingSelect").value;
+      const b = state.bookings.find(x => x.id === bookingId);
+      if(!b){
+        return;
+      }
+      // If user hasn't typed amount, prefill with booking total
+      if(!$("payAmount").value || Number($("payAmount").value) === 0){
+        $("payAmount").value = b.total;
+      }
+    }
+
+    function recalcTotal(){
+      const roomId = $("roomSelect").value;
+      const r = roomById(roomId);
+      const ci = $("checkIn").value;
+      const co = $("checkOut").value;
+      if(!r || !ci || !co){
+        $("total").value = "";
+        return;
+      }
+      const nights = daysBetween(ci, co);
+      $("total").value = nights > 0 ? money(nights * r.pricePerNight) : "";
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // ======== Event Wiring ========
+    function init(){
+      $("year").textContent = new Date().getFullYear();
+
+      loadState();
+      renderRooms();
+      renderRoomSelect();
+
+      // date defaults
+      $("checkIn").min = todayISO();
+      $("checkOut").min = todayISO();
+
+      // nav
+      $("navRooms").addEventListener("click", () => showView("rooms"));
+      $("navBookings").addEventListener("click", () => showView("bookings"));
+      $("navPayments").addEventListener("click", () => showView("payments"));
+
+      // reset
+      $("resetAll").addEventListener("click", () => {
+        localStorage.removeItem(STORAGE_KEY);
+        state.bookings = [];
+        state.payments = [];
+        toast("Reset complete", "Demo bookings and payments cleared.");
+        refreshAll();
+        showView("rooms");
+      });
+
+      // booking form
+      $("bookingForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const roomId = $("roomSelect").value;
+        const r = roomById(roomId);
+        const fullName = $("fullName").value.trim();
+        const email = $("email").value.trim();
+        const checkIn = $("checkIn").value;
+        const checkOut = $("checkOut").value;
+        const guests = Number($("guests").value || 1);
+
+        if(!r){ toast("Error", "Please select a room."); return; }
+        if(!fullName || !email){ toast("Error", "Please enter guest name and email."); return; }
+        if(!checkIn || !checkOut){ toast("Error", "Please select check-in and check-out dates."); return; }
+
+        const nights = daysBetween(checkIn, checkOut);
+        if(nights <= 0){
+          toast("Invalid dates", "Check-out date must be after check-in date.");
+          return;
+        }
+        if(guests > r.maxGuests){
+          toast("Too many guests", `${r.name} allows up to ${r.maxGuests} guests.`);
+          return;
+        }
+
+        const total = nights * r.pricePerNight;
+
+        const booking = {
+          id: uid("BKG"),
+          roomId,
+          fullName,
+          email,
+          checkIn,
+          checkOut,
+          nights,
+          guests,
+          total,
+          status: "UNPAID",
+          createdAt: Date.now()
+        };
+
+        state.bookings.push(booking);
+        state.payments.push({
+          txnId: uid("LOG"),
+          bookingId: booking.id,
+          method: "System",
+          amount: 0,
+          at: Date.now(),
+          note: "Booking created (unpaid)."
+        });
+
+        toast("Booking created", `${booking.id} created for ${r.name}. You can now process a fake payment.`);
+        refreshAll();
+        showView("bookings");
+      });
+
+      $("clearForm").addEventListener("click", () => {
+        $("bookingForm").reset();
+        renderRoomSelect();
+        $("total").value = "";
+        toast("Form cleared", "Booking form has been cleared.");
+      });
+
+      // recalc total on changes
+      ["roomSelect","checkIn","checkOut"].forEach(id => $(id).addEventListener("change", recalcTotal));
+      $("checkIn").addEventListener("change", () => {
+        // ensure checkout >= checkin + 1 day
+        const ci = $("checkIn").value;
+        if(ci){
+          const d = new Date(ci); d.setDate(d.getDate()+1);
+          const minCO = d.toISOString().slice(0,10);
+          $("checkOut").min = minCO;
+          if($("checkOut").value && $("checkOut").value < minCO) $("checkOut").value = minCO;
+        }
+        recalcTotal();
+      });
+
+      // payment form
+      $("payBookingSelect").addEventListener("change", syncPaymentAmountHint);
+
+      $("paymentForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const bookingId = $("payBookingSelect").value;
+        const method = $("payMethod").value;
+        const amount = Number($("payAmount").value || 0);
+
+        const b = state.bookings.find(x => x.id === bookingId);
+        if(!b){
+          toast("No booking", "Please create a booking first.");
+          return;
+        }
+        if(b.status === "CANCELLED"){
+          toast("Not allowed", "Cannot pay for a cancelled booking.");
+          return;
+        }
+        if(amount <= 0){
+          toast("Invalid amount", "Enter a positive amount.");
+          return;
+        }
+
+        // Simulate approval/decline with a simple rule:
+        // - If "Card" and fake card ends with odd digit => decline (demo behavior)
+        const fakeCard = $("fakeCard").value.replace(/\s+/g,"");
+        const lastDigit = fakeCard ? Number(fakeCard.slice(-1)) : 0;
+        const shouldDecline = (method === "Card" && fakeCard && Number.isFinite(lastDigit) && (lastDigit % 2 === 1));
+
+        if(shouldDecline){
+          state.payments.push({
+            txnId: uid("DEC"),
+            bookingId,
+            method,
+            amount,
+            at: Date.now(),
+            note: "DECLINED (demo rule: card ends with odd digit)."
+          });
+          toast("Payment declined", "Demo decline rule triggered. Try a card ending with an even digit.");
+          refreshAll();
+          return;
+        }
+
+        state.payments.push({
+          txnId: uid("PAY"),
+          bookingId,
+          method,
+          amount,
+          at: Date.now(),
+          note: "APPROVED (fake payment)."
+        });
+
+        // Mark booking paid if paid >= total (simple rule)
+        const paidSum = state.payments
+          .filter(p => p.bookingId === bookingId && p.txnId.startsWith("PAY"))
+          .reduce((s,p) => s + (Number(p.amount)||0), 0);
+
+        if(paidSum >= b.total){
+          b.status = "PAID";
+        }
+
+        toast("Payment processed", `Recorded ${money(amount)} for ${bookingId}.`);
+        refreshAll();
+        showView("payments");
+      });
+
+      $("refundBtn").addEventListener("click", () => {
+        const bookingId = $("payBookingSelect").value;
+        const b = state.bookings.find(x => x.id === bookingId);
+        if(!b){ toast("No booking", "Select a booking to refund."); return; }
+        if(b.status === "CANCELLED"){ toast("Not allowed", "Cancelled bookings are already closed."); return; }
+
+        b.status = "UNPAID";
+        state.payments.push({
+          txnId: uid("RFD"),
+          bookingId,
+          method: "System",
+          amount: 0,
+          at: Date.now(),
+          note: "Marked as refunded (demo action)."
+        });
+
+        toast("Refund recorded", `${bookingId} marked unpaid (demo).`);
+        refreshAll();
+      });
+
+      refreshAll();
+      showView("rooms");
+
+      // Set initial booking defaults for smoother demo
+      $("checkIn").value = todayISO();
+      const d = new Date(); d.setDate(d.getDate()+1);
+      $("checkOut").value = d.toISOString().slice(0,10);
+      recalcTotal();
+    }
+
+    init();
+  </script>
+</body>
+</html>
