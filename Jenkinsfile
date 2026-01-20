@@ -7,12 +7,12 @@ pipeline {
     agent any
 
     environment {
-        registry = "768477844960.dkr.ecr.ca-central-1.amazonaws.com/hotelapp10"
+        registry = "353269976646.dkr.ecr.ca-central-1.amazonaws.com/hotelapp"
     }
     stages {
         stage('Checkout') {
             steps {
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Lion-Technology-Solutions/hotel-management-docker-pipeline.git']])
+                checkout scmGit(branches: [[name: '*/jan17']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/DevOps-Cloud-project-deployment/hotel-management-docker-pipeline.git']])
             }
         }
         
@@ -28,8 +28,8 @@ pipeline {
         stage ("Push to ECR") {
             steps {
                 script {
-                    sh 'aws ecr get-login-password --region ca-central-1 | docker login --username AWS --password-stdin 768477844960.dkr.ecr.ca-central-1.amazonaws.com'
-                    sh 'docker push 768477844960.dkr.ecr.ca-central-1.amazonaws.com/hotelapp10:$BUILD_NUMBER'
+                    sh 'aws ecr get-login-password --region ca-central-1 | docker login --username AWS --password-stdin 353269976646.dkr.ecr.ca-central-1.amazonaws.com'
+                    sh 'docker push 353269976646.dkr.ecr.ca-central-1.amazonaws.com/hotelapp:$BUILD_NUMBER'
                     
                 }
             }
