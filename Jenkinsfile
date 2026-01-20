@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scmGit(branches: [[name: '*/jan17']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/DevOps-Cloud-project-deployment/hotel-management-docker-pipeline.git']])
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/DevOps-Cloud-project-deployment/hotel-management-docker-pipeline.git']])
             }
         }
         
